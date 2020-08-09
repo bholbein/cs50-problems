@@ -57,7 +57,7 @@ int main(int argc, string argv[])
     else 
        
         // if more than one argument is present, ask the user for a valid command line argument      
-        
+
     {
         printf("Usage: ./caesar key\n");
         return 1;
@@ -68,9 +68,6 @@ int main(int argc, string argv[])
 
 string cipherText(string text, int key) 
 {
-    /** todo: handle key > 65)
-     * 
-    */
     int cypher_key;
     char cypher_char;
     key = key % 26; // make sure key doesn't overflow
