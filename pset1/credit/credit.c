@@ -2,7 +2,7 @@
 #include <cs50.h>
 
 long get_card_number();
-int check_credit_card_number(long);
+int check_credit_card_number();
 
 int main(void)
 {
@@ -10,10 +10,11 @@ int main(void)
     check_credit_card_number(card_number);
 }
 
-long get_card_number(long card_number)
+long get_card_number()
 {
     // ask the user for input: credit card number
     // check whether the input is correct (only integer)
+    long card_number;
     do
     {
         card_number = get_long("Please type in a valid credit card number: ");
