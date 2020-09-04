@@ -159,7 +159,6 @@ bool vote(int voter, int rank, string name)
         }
     return false;
 }
-//TODO tabulate counts votes when multiple candidates are eliminated
 // Tabulate votes for non-eliminated candidates
 void tabulate(void)
 {        
@@ -178,7 +177,7 @@ void tabulate(void)
                     position++;
                 }
             }
-            // !!!TODO check for top vote (need to check later if that's the correct approach)
+            // Update Votes
             if (j == preferences[i][position])
             {
                 candidates[j].votes++;
