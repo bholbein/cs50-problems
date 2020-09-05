@@ -94,7 +94,6 @@ int main(int argc, string argv[])
         }
     } 
     */
-    
 
     // Keep holding runoffs until winner exists
     while (true)
@@ -161,18 +160,18 @@ bool vote(int voter, int rank, string name)
 }
 // Tabulate votes for non-eliminated candidates
 void tabulate(void)
-{        
+{
     for (int i = 0; i < voter_count; i++)
-    {   
+    {
         // loop through all candidates
         for (int j = 0; j < candidate_count; j++)
-        {   
-            
+        {
+
             // identify top position based on candidates left
             int position = 0;
-            for (int k =0; k < candidate_count; k++)
+            for (int k = 0; k < candidate_count; k++)
             {
-                if(preferences[i][position] == k && candidates[k].eliminated == true)
+                if (preferences[i][position] == k && candidates[k].eliminated == true)
                 {
                     position++;
                 }
