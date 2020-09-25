@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 typedef uint8_t BYTE;
 const int BLOCK_SIZE = 512;
@@ -29,25 +30,42 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    FILE *outputfile = NULL;
+    FILE *img = NULL;
+    char filename[7];
+    int img_counter = 0;
 
     // reading file
     BYTE buffer[BLOCK_SIZE];
     while (fread(&buffer, BLOCK_SIZE, 1, inputfile) == 1)
     {
         // look for a beginning of a JPEG
-        if (buffer[0] == 255 && buffer[1] == 216 && buffer[2] == 255 && 
+        if (buffer[0] == 255 && buffer[1] == 216 && buffer[2] == 255 &&
             buffer[3] >= 224 && buffer[3] <= 239)
-            printf("%x %x %x %x \n", buffer[0], buffer[1], buffer[2], buffer[3]);
+        {
+            // check if new image is alread open, if yes close first
+            if (img_counter > 0)
+            {
+                fclose(img);
+            }
 
-        // open a new JPEG file
-        // filenames ###.jpg starting with 000.jpg
-        // sprintf(filename, "%03i.jpg", 2);
+            // create a new incremental filename
+            sprintf(filename, "%03i.jpg", img_counter);
 
-        // Write in 512 byte chunks until a new JPEG is found
+            // open a new image
+            img = fopen(filename, "w");
 
-        // FILE *img = fopen(filename, "w");
-        // fwrite(data, size, number, outptr);
+            if (img == NULL)
+            {
+                fprintf(stderr, "Not able to create %s. \n", filename);
+            }
+
+            img_counter++;
+        }
+
+        if (img != NULL)
+        {
+            fwrite(&buffer, BLOCK_SIZE, 1, img);
+        }
     }
     if (feof(inputfile))
     {
@@ -56,7 +74,8 @@ int main(int argc, char *argv[])
     else
     {
         printf("An unknown error occured.");
-    }    
+    }
 
+    fclose(img);
     fclose(inputfile);
 }
