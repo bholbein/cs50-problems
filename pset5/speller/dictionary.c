@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include "dictionary.h"
 
 // Represents a node in a hash table
@@ -16,27 +17,41 @@ typedef struct node
 
 // Additional Prototypes
 node *createNode(char value[LENGTH + 1]);
-node *inserNode(char value[LENGTH + 1], node *head);
+node *insertNode(node *insert, node *hashtable_at_index);
+bool findNode(const char value[LENGTH +1], node *hashtable_at_index);
+void printList(node *head);
+void freeMem(node *head);
 
 // Number of buckets in hash table
 // TODO: change to optimal value
-const unsigned int N = 26;
+const unsigned int N = 10;
 
 // Hash table
 node *table[N];
+
+// node counter
+int node_counter = 0; 
 
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
     // TODO
-    return false;
+    if (findNode(word, table[hash(word)])) 
+    {
+        return false; 
+    }
+    else 
+    {
+        return false;
+    }
 }
 
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
     // TODO
-    return word[0] - 97;
+    //printf("Index %i \n", (word[0]+word[1]+word[2]) % 100);
+    return (word[0] - 96);
 }
 
 // Loads dictionary into memory, returning true if successful else false
@@ -48,34 +63,44 @@ bool load(const char *dictionary)
     if (file == NULL)
     {
         printf("Can't read from file %s", dictionary);
+        return false;
     }
     // 2) Read strings from file one at a time
-    char *word = malloc(128);
+    char *word = malloc(LENGTH + 1);
     while (fscanf(file, "%s", word) != EOF)
     {
         // sanity check printf
-        printf("%s \n", word);
-        // 3) Create a new node for each word
-        createNode(word);
+        // printf("%s ,,, \n", word);
+        // 3) Create a new node for each word     
+        node_counter++; 
         // 4) Insert node into hash table at the location, applying hash the hash function
-        inserNode(word, table[hash(word)]);
+        table[hash(word)] = insertNode(createNode(word), table[hash(word)]);
     }
+    for (int i = 0; i < N; i++)
+    {
+        printf("New Node: \n");
+        printList(table[i]);
+    }
+    free(word);
     fclose(file);
-    return false;
+    return true;
 }
 
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    return node_counter;
 }
 
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
     // TODO
-    return false;
+    for (int i = 0; i <= N; i++)
+    {
+        freeMem(table[i]);
+    }
+    return true;
 }
 
 node *createNode(char value[LENGTH + 1])
@@ -87,17 +112,56 @@ node *createNode(char value[LENGTH + 1])
     }
     strcpy(n->word, value);
     n->next = NULL;
+    //printf("node created \n");
     return n;
 }
 
-node *inserNode(char value[LENGTH + 1], node *head)
+node *insertNode(node *insert, node *hashtable_at_index)
 {
-    node *n = malloc(sizeof(node));
-    if (n == NULL)
+    if (hashtable_at_index == NULL)
     {
-        return NULL;
+        hashtable_at_index = insert;
+        //printf("New Node at Hashtable \n");
+        return hashtable_at_index;
     }
-    strcpy(n->word, value);
-    n->next = head;
-    return head = n;
+    else 
+    {
+        insert->next = hashtable_at_index;
+        //printf("New Node inserted \n");
+        return insert;
+    }
+}
+
+bool findNode(const char value[LENGTH +1], node *hash_table_at_index)
+{
+    for (node *tmp = hash_table_at_index; tmp != NULL; tmp = tmp->next)
+    {
+        if (strcasecmp(tmp->word, value) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void freeMem(node *head)
+{
+    int nodes_deleted = 0;
+    while (head != NULL)
+    {
+        node *tmp = head->next;
+        free(head);
+        head = tmp;
+        nodes_deleted++;
+    }
+    printf("Memory freed for %i nodes!", nodes_deleted);
+}
+
+void printList(node *head)
+{
+    for (node *tmp = head; tmp != NULL; tmp = tmp->next)
+    {
+        printf("%s ", tmp->word);
+    }
+    printf("\n");
 }
