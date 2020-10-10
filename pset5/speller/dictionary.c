@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <ctype.h>
 #include "dictionary.h"
 
 // Represents a node in a hash table
@@ -18,13 +19,12 @@ typedef struct node
 // Additional Prototypes
 node *createNode(char value[LENGTH + 1]);
 node *insertNode(node *insert, node *hashtable_at_index);
-bool findNode(const char value[LENGTH +1], node *hashtable_at_index);
 void printList(node *head);
 void freeMem(node *head);
 
 // Number of buckets in hash table
 // TODO: change to optimal value
-const unsigned int N = 10;
+const unsigned int N = 5000;
 
 // Hash table
 node *table[N];
@@ -36,22 +36,26 @@ int node_counter = 0;
 bool check(const char *word)
 {
     // TODO
-    if (findNode(word, table[hash(word)])) 
+    for (node *tmp = table[hash(word)]; tmp != NULL; tmp = tmp->next)
     {
-        return false; 
+        if (strcasecmp(tmp->word, word) == 0)
+        {
+            return true;
+        }
     }
-    else 
-    {
-        return false;
-    }
+    return false;
 }
 
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
     // TODO
-    //printf("Index %i \n", (word[0]+word[1]+word[2]) % 100);
-    return (word[0] - 96);
+    long sum = 0;
+    for (int i = 0, len = strlen(word); i <= len; i++)
+    {
+        sum = tolower(word[i]) + sum;
+    }
+    return sum % N;
 }
 
 // Loads dictionary into memory, returning true if successful else false
@@ -75,11 +79,6 @@ bool load(const char *dictionary)
         node_counter++; 
         // 4) Insert node into hash table at the location, applying hash the hash function
         table[hash(word)] = insertNode(createNode(word), table[hash(word)]);
-    }
-    for (int i = 0; i < N; i++)
-    {
-        printf("New Node: \n");
-        printList(table[i]);
     }
     free(word);
     fclose(file);
@@ -132,18 +131,6 @@ node *insertNode(node *insert, node *hashtable_at_index)
     }
 }
 
-bool findNode(const char value[LENGTH +1], node *hash_table_at_index)
-{
-    for (node *tmp = hash_table_at_index; tmp != NULL; tmp = tmp->next)
-    {
-        if (strcasecmp(tmp->word, value) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 void freeMem(node *head)
 {
     int nodes_deleted = 0;
@@ -154,7 +141,7 @@ void freeMem(node *head)
         head = tmp;
         nodes_deleted++;
     }
-    printf("Memory freed for %i nodes!", nodes_deleted);
+    // printf("Memory freed for %i nodes!", nodes_deleted);
 }
 
 void printList(node *head)
