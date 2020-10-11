@@ -24,7 +24,7 @@ void freeMem(node *head);
 
 // Number of buckets in hash table
 // TODO: change to optimal value
-const unsigned int N = 5000;
+const unsigned int N = 2000;
 
 // Hash table
 node *table[N];
@@ -73,11 +73,7 @@ bool load(const char *dictionary)
     char *word = malloc(LENGTH + 1);
     while (fscanf(file, "%s", word) != EOF)
     {
-        // sanity check printf
-        // printf("%s ,,, \n", word);
-        // 3) Create a new node for each word     
         node_counter++; 
-        // 4) Insert node into hash table at the location, applying hash the hash function
         table[hash(word)] = insertNode(createNode(word), table[hash(word)]);
     }
     free(word);
