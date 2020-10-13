@@ -21,7 +21,7 @@ def get_input():
     return cash
 
 
-def calc_change(cash: int):
+def calc_change(cash: float):
     """Returns minimal number of coins for change"""
     counter = 0
     rest = cash
