@@ -1,9 +1,8 @@
 # constants
 coins = [0.25, 0.1, 0.05, 0.01]
 
-
 def main():
-    print(round(calc_change(get_input())))
+    print(round(calc_change(get_input(), coins)))
 
 def get_input():
     """Return positive float number as valid user input"""    
@@ -19,7 +18,7 @@ def get_input():
     return cash
 
 
-def calc_change(cash: float):
+def calc_change(cash: float, coins: list):
     """Returns minimal number of coins for change"""
     counter = 0
     for i in coins:
