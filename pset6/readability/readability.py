@@ -31,9 +31,9 @@ def analyze_text(text: str) -> dict:
     word_count = 1
     for letter in text:
         if re.match(r'[a-z]', letter, re.IGNORECASE):
-            letter_count = letter_count + 1
+            letter_count += 1
         elif letter == " ":
-            word_count = word_count + 1
+            word_count += 1
         elif re.match((r'\.|\!|\?'), letter):
             sentence_count = sentence_count + 1
     return {'letters': letter_count,
