@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="js/script.js"></script>
+    <title>This is my Homepage</title>
+</head>
+
+<body>
+    <div class="container nav">
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <a class=" nav-link active" href="/index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/about-me.html">About Me</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/work.html">Work</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/privacy.html">Privacy</a>
+            </li>
+        </ul>
+    </div>
+    <div class="container content">
+        <h1>Hello and welcome to this CS50 test page</h1>
+        <div>
+            <div>
+                <img src="" alt="">
+            </div>
+            <div>
+                <p>This is a website I created during a problem assignment within the CS50 course "Introduction to computer science".</p>
+            </div>
+            <div>
+                <p>If you want to stay in the loop please subscribe to my newsletter.</p>
+                <form>
+                    <!-- action = "submit" -->
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                            placeholder="user@example.com">
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                            else.</small>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="privacy_check">
+                        <label class="form-check-label" for="exampleCheck1">Accept Privacy Policy</label>
+                    </div>
+                    <div class="alert alert-warning" role="alert" id="info"></div>
+                </form>
+                <button class="btn btn-primary" onclick="submit_form()">Submit</button>
+
+                
+
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

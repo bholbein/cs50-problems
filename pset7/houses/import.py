@@ -19,12 +19,11 @@ def main(argv):
         except:
             print("Could not open file.")
             return 2
+        rows = list(map(explode_name, csv.reader(csv_file)))
         cursor = connection.cursor()
-        rows = csv.reader(csv_file)
-        rows_expl = list(map(explode_name, rows))
         cursor.execute("DELETE FROM students")
         cursor.executemany(
-            "INSERT INTO students (first, middle, last, house, birth) VALUES (?, ?, ?, ?, ?)", rows_expl[1:])
+            "INSERT INTO students (first, middle, last, house, birth) VALUES (?, ?, ?, ?, ?)", rows[1:])
         connection.commit()
         connection.close()
 
@@ -33,6 +32,7 @@ def explode_name(entry: list) -> list:
     # explodes name in first-, middle- and last name
     new_list = []
     name = entry[0].split(" ", 2)
+    # ToDo solve with for loop and short if statement
     new_list.append(name[0])
     if len(name) == 2:
         new_list.append(None)
