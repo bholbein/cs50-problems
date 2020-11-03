@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block body%}
+    <h1>
+    {%  if number == 1 %}
+        Your coin flip is HEADS.
+    {% else %}
+        Your coin flip is TAILS
+    {% endif %}
+    </h1>
+    <form action="/hello">
+        <input type="text" name="name" placeholder="Your Name">
+        <input type="email" name="email" placeholder="Your Mail Adress">
+        <button>Submit</button>
+    </form>
+{% endblock %}
