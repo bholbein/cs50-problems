@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+    Purchase successfull    
+{% endblock title %}
+
+
+{% block main %}
+    <h2>{{purchase.symbol}}</h2>
+    <p>You successfully bought {{shares}} shares of <em>{{purchase.name}}</em> at a current price of ${{purchase.price}}.</p>
+    <p>Cash balance is now ${{'%0.2f' % cash}}</p>
+    <a href="/buy">Buy more</a>
+{% endblock main %}
+    

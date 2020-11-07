@@ -3,10 +3,10 @@ import os
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
+from datetime import datetime
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from helpers import apology, login_required, lookup, usd
 
 # Configure application
@@ -16,12 +16,15 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Ensure responses aren't cached
+
+
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -34,6 +37,8 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
+db.execute("CREATE TABLE IF NOT EXISTs transactions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, symbol VARCHAR NOT NULL, price REAL NOT NULL, shares INTEGER NOT NULL, time_stamp TEXT NOT NULL)")
+
 
 # Make sure API key is set
 if not os.environ.get("API_KEY"):
@@ -51,7 +56,31 @@ def index():
 @login_required
 def buy():
     """Buy shares of stock"""
-    return apology("TODO")
+    if request.method == "GET":
+        return render_template("buy.html")
+    elif request.method == "POST":
+        symbol = request.form.get("stock_symbol")
+        shares = request.form.get('shares', type=int)
+        if not symbol:
+            return apology("Specify stock symbol", 403)
+        elif (not shares) or (shares <= 0):
+            return apology("Number of shares > 0", 403)
+        user_id = session["user_id"]
+        cash_before = db.execute(
+            "SELECT cash FROM users WHERE id = :user_id", user_id=user_id)
+        purchase = lookup(symbol)
+        if not purchase: 
+            return apology("Stock not found")
+        if cash_before[0]['cash'] < float(purchase['price']) * shares:
+            return apology("Sorry, not enough cash")
+        else:
+            db.execute("INSERT INTO transactions (user_id, symbol, shares, price, time_stamp) values (:user_id, :symbol, :shares, :price, :time)",
+                       user_id=user_id, symbol=purchase['symbol'], shares=shares, price=purchase['price'], time = datetime.now())
+            cash_after = cash_before[0]['cash'] - (purchase['price'] * shares)
+            db.execute("UPDATE users SET cash = :cash WHERE id = :user_id", cash=cash_after, user_id=user_id)
+        return render_template("bought.html", purchase=purchase, shares=shares, cash=cash_after)
+    else:
+        return apology("Invalid request type")
 
 
 @app.route("/history")
@@ -113,13 +142,51 @@ def logout():
 @login_required
 def quote():
     """Get stock quote."""
-    return apology("TODO")
+    if request.method == "GET":
+        return render_template("quote.html")
+    else:
+        symbol = request.form.get("stock_symbol")
+        quote = lookup(symbol)
+        if not quote:
+            return apology("could not find symbol", 403)
+        else:
+            return render_template("quoted.html", quote=quote)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-    return apology("TODO")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            return apology("must provide username", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("must provide password", 403)
+
+        # Lookup username in the database
+        rows = db.execute(
+            "SELECT * FROM users WHERE username = :username", username=username)
+        if len(rows) == 1:
+            return apology("username already exists", 403)
+        else:
+            db.execute("INSERT INTO users (username, hash) VALUES (:username, :hashed_pw)",
+                       username=username, hashed_pw=generate_password_hash(password))
+            rows = db.execute(
+                "SELECT * FROM users WHERE username = :username", username=username)
+
+            # Remember which user has logged in
+            session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    else:
+        return render_template("register.html")
 
 
 @app.route("/sell", methods=["GET", "POST"])

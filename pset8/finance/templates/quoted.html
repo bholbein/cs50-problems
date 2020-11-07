@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+    Quote Results    
+{% endblock title %}
+
+
+{% block main %}
+    <h2>{{quote.symbol}}</h2>
+    <p>A share of <em>{{quote.name}}</em> currently costs ${{quote.price}}.</p>
+    <a href="/quote">Make another quote.</a>
+{% endblock main %}
+    
+    
