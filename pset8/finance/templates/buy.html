@@ -2,11 +2,12 @@
 
 
 {% block title %}
-    Buy stocks
+Buy stocks
 {% endblock title %}
 
 
 {% block main %}
+<h1>Buy stocks</h1>
 <p>Please specifiy the stock's symbol you want to buy</p>
 <form action="/buy" method="post">
     <div class="form-group">
@@ -14,7 +15,5 @@
         <input class="form-control" type="number" name="shares">
     </div>
     <button class="btn btn-primary" type="submit" name="quote">Buy</button>
-</form>    
+</form>
 {% endblock main %}
-    
-    

@@ -7,7 +7,7 @@ from datetime import datetime
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, get_price, get_portfolio
 
 # Configure application
 app = Flask(__name__)
@@ -16,7 +16,6 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Ensure responses aren't cached
-
 
 @app.after_request
 def after_request(response):
@@ -37,8 +36,9 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
-db.execute("CREATE TABLE IF NOT EXISTs transactions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, symbol VARCHAR NOT NULL, price REAL NOT NULL, shares INTEGER NOT NULL, time_stamp TEXT NOT NULL)")
+db.execute("CREATE TABLE IF NOT EXISTs transactions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, symbol VARCHAR NOT NULL, price REAL NOT NULL, shares INTEGER NOT NULL, method VARCHAR NOT NULL, time_stamp TEXT NOT NULL)")
 
+# Global variables
 
 # Make sure API key is set
 if not os.environ.get("API_KEY"):
@@ -49,7 +49,26 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return apology("TODO")
+    user_id = session["user_id"]
+    cash = db.execute("SELECT cash FROM users WHERE id=:user_id", user_id = user_id)
+    total = []
+    total_buy_price = 0
+    total_value = 0
+    total_shares = 0
+    portfolio = get_portfolio(db, user_id)
+    if portfolio:         
+        for element in portfolio:
+            current_price = get_price(element['symbol'])
+            value = element['SUM(shares)'] * current_price
+            total_buy_price += element['SUM(shares * price)']
+            total_value += value 
+            total_shares += element['SUM(shares)']
+            element.update({'price': current_price})
+            element.update({'value': value })
+            element.update({'diff': value - element['SUM(shares * price)']})
+            element.update({'diff_percent': (value - element['SUM(shares * price)']) / element['SUM(shares * price)'] * 100 })
+        total.append({'total_shares': total_shares, 'total_buy_price': total_buy_price, 'total_value': total_value, 'total_diff': total_value - total_buy_price, 'total_diff_percent': (total_value - total_buy_price)/total_buy_price * 100 }) 
+    return render_template("index.html", portfolio=portfolio, cash = cash, total = total)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -69,15 +88,16 @@ def buy():
         cash_before = db.execute(
             "SELECT cash FROM users WHERE id = :user_id", user_id=user_id)
         purchase = lookup(symbol)
-        if not purchase: 
+        if not purchase:
             return apology("Stock not found")
         if cash_before[0]['cash'] < float(purchase['price']) * shares:
             return apology("Sorry, not enough cash")
         else:
-            db.execute("INSERT INTO transactions (user_id, symbol, shares, price, time_stamp) values (:user_id, :symbol, :shares, :price, :time)",
-                       user_id=user_id, symbol=purchase['symbol'], shares=shares, price=purchase['price'], time = datetime.now())
+            db.execute("INSERT INTO transactions (user_id, symbol, shares, price, method, time_stamp) values (:user_id, :symbol, :shares, :price, :method, :time)",
+                       user_id=user_id, symbol=purchase['symbol'], shares=shares, price=purchase['price'], method="buy", time=datetime.now())
             cash_after = cash_before[0]['cash'] - (purchase['price'] * shares)
-            db.execute("UPDATE users SET cash = :cash WHERE id = :user_id", cash=cash_after, user_id=user_id)
+            db.execute("UPDATE users SET cash = :cash WHERE id = :user_id",
+                       cash=cash_after, user_id=user_id)
         return render_template("bought.html", purchase=purchase, shares=shares, cash=cash_after)
     else:
         return apology("Invalid request type")
@@ -193,7 +213,11 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "GET":
+        portfolio = get_portfolio(db, session["user_id"])
+        return render_template("/sell.html", portfolio = portfolio)
+    else:
+        return render_template("/")
 
 
 def errorhandler(e):

@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+Portfolio Overview
+{% endblock title %}
+
+
+{% block main %}
+<h1>Your portfolio:</h1>
+<br>
+{% if not portfolio %}
+<p>It seems you don't own any stock shares right now</p>
+{% else %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Symbol</th>
+            <th scope="col">Shares</th>
+            <th scope="col">Current Price</th>
+            <th scope="col">Value at purchase</th>
+            <th scope="col">Current value</th>
+            <th scope="col">Diff.</th>
+            <th scope="col">Percent</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in portfolio %}
+        <tr>
+            <td>{{row['symbol']}}</td>
+            <td>{{row['SUM(shares)']}}</td>
+            <td>${{'%0.2f' % row['price']}}</td>
+            <td>${{'%0.2f' % row['SUM(shares * price)']}}</td>
+            <td>${{'%0.2f' % row['value']}}</td>
+            <td>${{'%0.2f' % row['diff']}}</td>
+            <td>{{'%0.2f' % row['diff_percent']}}%</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Cash</td>
+            <td colspan="2"></td>
+            <td>${{'%0.2f' % cash[0]['cash']}}</td>
+            <td>${{'%0.2f' % cash[0]['cash']}}</td>
+            <td colspan="1"></td>
+        </tr>
+        <tr style="font-weight: bold;">
+            <td>Total</td>
+            <td colspan="2"></td>
+            <td>${{'%0.2f' % (total[0]['total_buy_price'] + cash[0]['cash'] )}}</td>
+            <td>${{'%0.2f' % (total[0]['total_value'] + cash[0]['cash']) }}</td>
+            <td>${{'%0.2f' % total[0]['total_diff']}}</td>
+            <td>{{'%0.2f' %total[0]['total_diff_percent']}}%</td>
+        </tr>
+
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock main %}

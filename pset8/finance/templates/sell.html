@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+Sell stocks
+{% endblock title %}
+
+
+{% block main %}
+<h1>Sell stocks</h1>
+<p>Please specifiy the stock's symbol you want to buy</p>
+<form action="/sell" method="post">
+    <div class="form-group">
+        <select class="form-control form-control-lg" name="symbol" id="symbil">
+            {% for row in portfolio %}
+            <option value="{'symbol': {{row['symbol']}}, 'max_shares': {{row['SUM(shares)']}}}">{{row['symbol']}}
+            </option>
+            {% endfor %}
+        </select>
+        <select class="form-control form-control-lg" name="shares" id="shares">
+            <!-- Java Script thingy goes here-->
+            <option value="1">1</option>
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit" name="quote">Sell</button>
+</form>
+{% endblock main %}

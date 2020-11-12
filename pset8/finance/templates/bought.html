@@ -2,14 +2,17 @@
 
 
 {% block title %}
-    Purchase successfull    
+Purchase successfull
 {% endblock title %}
 
 
 {% block main %}
-    <h2>{{purchase.symbol}}</h2>
-    <p>You successfully bought {{shares}} shares of <em>{{purchase.name}}</em> at a current price of ${{purchase.price}}.</p>
-    <p>Cash balance is now ${{'%0.2f' % cash}}</p>
-    <a href="/buy">Buy more</a>
+<h1>{{purchase.symbol}}</h1>
+<p>You successfully bought {{shares}} shares of <em>{{purchase.name}}</em> at a current price of ${{purchase.price}}.
+</p>
+<p>Cash balance is now ${{'%0.2f' % cash}}</p>
+<a href="/buy">Buy more</a>
+<br />
+<a href="/">Overview</a>
+
 {% endblock main %}
-    

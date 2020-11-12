@@ -2,18 +2,17 @@
 
 
 {% block title %}
-    Make a quote
+Make a quote
 {% endblock title %}
 
 
 {% block main %}
+<h1>Quote stocks</h1>
 <p>Please specifiy a stock's symbol</p>
 <form action="/quote" method="post">
     <div class="form-group">
         <input class="form-control" type="text" name="stock_symbol" placeholder="Symbol">
     </div>
     <button class="btn btn-primary" type="submit" name="quote">Quote</button>
-</form>    
+</form>
 {% endblock main %}
-    
-    

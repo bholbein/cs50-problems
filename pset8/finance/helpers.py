@@ -61,3 +61,12 @@ def lookup(symbol):
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
+
+def get_price(symbol) -> float:
+    quote = lookup(symbol)
+    return quote['price']
+
+def get_portfolio(db, user_id):
+    portfolio = db.execute(
+        "SELECT symbol, SUM(shares), SUM(shares * price) FROM transactions WHERE user_id=:user_id GROUP BY symbol", user_id=user_id)
+    return portfolio
