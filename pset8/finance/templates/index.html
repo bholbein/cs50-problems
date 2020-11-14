@@ -28,9 +28,9 @@ Portfolio Overview
         {% for row in portfolio %}
         <tr>
             <td>{{row['symbol']}}</td>
-            <td>{{row['SUM(shares)']}}</td>
+            <td>{{row['shares']}}</td>
             <td>${{'%0.2f' % row['price']}}</td>
-            <td>${{'%0.2f' % row['SUM(shares * price)']}}</td>
+            <td>${{'%0.2f' % row['share_value']}}</td>
             <td>${{'%0.2f' % row['value']}}</td>
             <td>${{'%0.2f' % row['diff']}}</td>
             <td>{{'%0.2f' % row['diff_percent']}}%</td>
@@ -41,7 +41,7 @@ Portfolio Overview
             <td colspan="2"></td>
             <td>${{'%0.2f' % cash[0]['cash']}}</td>
             <td>${{'%0.2f' % cash[0]['cash']}}</td>
-            <td colspan="1"></td>
+            <td colspan="2"></td>
         </tr>
         <tr style="font-weight: bold;">
             <td>Total</td>

@@ -66,7 +66,15 @@ def get_price(symbol) -> float:
     quote = lookup(symbol)
     return quote['price']
 
+def get_cash(db, user_id) -> float:
+    cash = db.execute("SELECT cash FROM users WHERE id = :user_id", user_id=user_id)
+    return cash[0]['cash']
+
+def update_cash(db, user_id, cash):
+    db.execute("UPDATE users SET cash = :cash WHERE id = :user_id", cash = cash, user_id = user_id)
+    return 1
+
 def get_portfolio(db, user_id):
     portfolio = db.execute(
-        "SELECT symbol, SUM(shares), SUM(shares * price) FROM transactions WHERE user_id=:user_id GROUP BY symbol", user_id=user_id)
+        "SELECT symbol, SUM(shares) as shares, SUM(shares * price) as share_value FROM transactions WHERE user_id=:user_id GROUP BY symbol HAVING SUM(shares) > 0", user_id=user_id)
     return portfolio

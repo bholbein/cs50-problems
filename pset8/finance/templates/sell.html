@@ -11,17 +11,42 @@ Sell stocks
 <p>Please specifiy the stock's symbol you want to buy</p>
 <form action="/sell" method="post">
     <div class="form-group">
-        <select class="form-control form-control-lg" name="symbol" id="symbil">
+        <select class="form-control form-control-lg" name="symbol" id="symbol" onchange="getShares()">
             {% for row in portfolio %}
-            <option value="{'symbol': {{row['symbol']}}, 'max_shares': {{row['SUM(shares)']}}}">{{row['symbol']}}
-            </option>
+            {% set sym_shares = row %}
+            <option value='{{sym_shares|tojson}}'>{{row['symbol']}}</option>
             {% endfor %}
         </select>
         <select class="form-control form-control-lg" name="shares" id="shares">
             <!-- Java Script thingy goes here-->
-            <option value="1">1</option>
         </select>
     </div>
     <button class="btn btn-primary" type="submit" name="quote">Sell</button>
 </form>
+
+<script>
+
+    function getShares() {
+        let select = document.getElementById("shares")
+        let dict = JSON.parse(document.getElementById('symbol').value);
+        if (select.value) {
+            removeOptions(select);
+        }
+        for (i = 1; i <= dict['shares']; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i;
+            select.appendChild(opt);
+        }
+    }
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 0; i--) {
+            selectElement.remove(i);
+        }
+    }
+    document.body.onload = getShares();
+</script>
+
 {% endblock main %}
