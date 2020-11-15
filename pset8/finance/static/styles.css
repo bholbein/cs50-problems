@@ -45,3 +45,11 @@ main img
     /* constrain images on small screens */
     max-width: 100%;
 }
+
+.head {
+    display: block;
+    font-weight: 400;
+    color:#545b62;
+    padding: .5rem 1rem;
+
+}

@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+History of transactions
+{% endblock title %}
+
+
+{% block main %}
+<h1>History of your transactions:</h1>
+<br>
+{% if not transactions %}
+<p>It seems you didn't made any transactions so far.</p>
+{% else %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date</th>
+            <th scope="col">Symbol</th>
+            <th scope="col">Buy/Sell</th>
+            <th scope="col">Shares</th>
+            <th scope="col">Price</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in transactions %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{row['time_stamp']}}</td>
+            <td>{{row['symbol']}}</td>
+            <td>{{row['method']}}</td>
+            <td>{{row['shares']}}</td>
+            <td>${{'%0.2f' % row['price']}}</td>
+            <td>${{'%0.2f' % row['value']}}</td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock main %}

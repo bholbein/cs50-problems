@@ -1,14 +1,14 @@
 import os
+import json
 
 from cs50 import SQL
 from datetime import datetime
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
-import json
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import apology, login_required, lookup, usd, get_price, get_portfolio, get_cash, update_cash
+from helpers import apology, login_required, lookup, usd, get_price, get_portfolio, get_cash, update_cash, get_transactions
 
 # Configure application
 app = Flask(__name__)
@@ -40,8 +40,6 @@ Session(app)
 db = SQL("sqlite:///finance.db")
 db.execute("CREATE TABLE IF NOT EXISTs transactions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, symbol VARCHAR NOT NULL, price REAL NOT NULL, shares INTEGER NOT NULL, method VARCHAR NOT NULL, time_stamp TEXT NOT NULL)")
 
-# Global variables
-
 # Make sure API key is set
 if not os.environ.get("API_KEY"):
     raise RuntimeError("API_KEY not set")
@@ -69,9 +67,11 @@ def index():
             element.update({'price': current_price})
             element.update({'value': value})
             element.update({'diff': value - element['share_value']})
-            element.update({'diff_percent': ((value - element['share_value']) / (element['share_value'] * 100)) if element['share_value'] else 0})
+            element.update({'diff_percent': ((value - element['share_value']) / (
+                element['share_value'] * 100)) if element['share_value'] else 0})
         total.append({'total_shares': total_shares, 'total_buy_price': total_buy_price, 'total_value': total_value,
                       'total_diff': total_value - total_buy_price, 'total_diff_percent': (total_value - total_buy_price)/total_buy_price * 100})
+        session["value"] = total_value
     return render_template("index.html", portfolio=portfolio, cash=cash, total=total)
 
 
@@ -102,7 +102,7 @@ def buy():
                        user_id=user_id, symbol=purchase['symbol'], shares=shares, price=purchase['price'], method="buy", time=datetime.now())
             cash_after = cash_before[0]['cash'] - (purchase['price'] * shares)
             update_cash(db, user_id, cash_after)
-        return render_template("bought.html", purchase=purchase, shares=shares, cash=cash_after)
+        return redirect("/")
     else:
         return apology("Invalid request type")
 
@@ -111,7 +111,13 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    user_id = session["user_id"]
+    transactions = get_transactions(db, user_id)
+    print(transactions)
+    if transactions:
+        return render_template("history.html", transactions=transactions)
+    else:
+        return apology("No transactions found", 403)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -142,6 +148,11 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+
+        # Remember Username
+        session["user_name"] = rows[0]["username"]
+        session["cash"] = rows[0]["cash"]
+        session["value"] = 0
 
         # Redirect user to home page
         return redirect("/")
@@ -205,6 +216,9 @@ def register():
 
             # Remember which user has logged in
             session["user_id"] = rows[0]["id"]
+            session["user_name"] = rows[0]["username"]
+            session["cash"] = rows[0]["cash"]
+            session["value"] = 0
 
         # Redirect user to home page
         return redirect("/")
@@ -231,7 +245,6 @@ def sell():
                    user_id=user_id, symbol=stock['symbol'], shares=-shares, price=sell['price'], method="sell", time=datetime.now())
         cash_after = cash_before + (sell['price'] * shares)
         update_cash(db, user_id, cash_after)
-
         return redirect("/")
 
 
